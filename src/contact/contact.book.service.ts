@@ -4,7 +4,7 @@ import { Equal, Repository } from 'typeorm';
 import { Contact } from './contact';
 import { ContactDTO, ContactPostDTO, ContactReferenceDTO } from './contact.dto';
 import { ContactMeans } from './contact.means';
-import { ContactMeansNameEqualException } from './exceptions/contact.means.name.equal.exception';
+import { ContactMeansEqualException } from './exceptions/contact.means.equal.exception';
 import { ContactMeansSingleRemovedException } from './exceptions/contact.means.single.removed.exception';
 import { ContactNameEqualException } from './exceptions/contact.name.equal.exception';
 import { ContactMeansMainRemovedException } from './exceptions/contact.means.main.removed.exception'; 
@@ -47,8 +47,8 @@ export class ContactBookService {
 
   add = async(contactPostDTO: ContactPostDTO): Promise<string> => {
     const contact: Contact = contactPostDTO.asNewContact();
-    const contactsFound: Contact[] = await this.contacts.find({name: Equal(contact.name)});
-    if (contactsFound?.length) throw new ContactNameEqualException();
+    const contactsWithSameNamesFound: Contact[] = await this.contacts.find({name: Equal(contact.name)});
+    if (contactsWithSameNamesFound?.length) throw new ContactNameEqualException();
     const contactInserted: Contact = await this.contacts.save(contact);
     contactInserted.firstContactMeans.contact = null;
     return JSON.stringify(contactInserted);
@@ -56,8 +56,8 @@ export class ContactBookService {
 
   put = async(contactDTO: ContactDTO): Promise<string> => {
     const contact: Contact = contactDTO.asContact();
-    const contactsListed: Contact[] = await this.contacts.find({name: Equal(contact.name)});
-    const contactItemListed = contactsListed.find((item) => item.id != contact.id)
+    const contactsWithSameNamesFound: Contact[] = await this.contacts.find({name: Equal(contact.name)});
+    const contactItemListed = contactsWithSameNamesFound.find((item) => item.id != contact.id)
     if (contactItemListed) throw new ContactNameEqualException();
     await this.contacts.save(contact);
     return JSON.stringify(contactDTO);
@@ -74,7 +74,7 @@ export class ContactBookService {
     const contactMeans: ContactMeans = contactMeansPostDTO.asNewContactMeans();
     contactMeans.contact = await this.contacts.findOne(contactMeansPostDTO.contact.id, {relations: ['means']})
     const contactMeansItemListed: ContactMeans = await this._listContactMeans(contactMeans);
-    if (contactMeansItemListed) throw new ContactMeansNameEqualException();
+    if (contactMeansItemListed) throw new ContactMeansEqualException();
     if (contactMeans.contact.hasContactMeans && contactMeans.isMain) {
       contactMeans.contact.disableAllContactMeansMain();
       await this.means.save(contactMeans.contact.means);
@@ -96,7 +96,7 @@ export class ContactBookService {
     const contactMeans: ContactMeans = contactMeansDTO.asContactMeans();
     contactMeans.contact = await this.contacts.findOne(contactMeansDTO.contact.id, {relations: ['means']})
     const contactMeansListed: ContactMeans = await this._listContactMeans(contactMeans);
-    if (contactMeansListed && contactMeansListed?.id != contactMeans.id) throw new ContactMeansNameEqualException();
+    if (contactMeansListed && contactMeansListed?.id != contactMeans.id) throw new ContactMeansEqualException();
     if (contactMeans.contact.hasContactMeans && contactMeans.isMain) {
       contactMeans.contact.disableAllContactMeansMain();
       await this.means.save(contactMeans.contact.means);
@@ -109,8 +109,8 @@ export class ContactBookService {
   deleteContactMeans = async(contactMeansReferenceDTO: ContactMeansReferenceDTO): Promise<string> => {
     const contactMeans: ContactMeans = await this.means.findOne(contactMeansReferenceDTO.id, {relations: ['contact']});
     const contact: Contact = await this._listContact(contactMeans.contact.id);
-    const isContactMeansMainAndMoreThanOne = contactMeans.isMain && contact.isContactMeansGreaterThanOne;
-    if (isContactMeansMainAndMoreThanOne) throw new ContactMeansMainRemovedException();
+    const isContactMeansMainAndGreaterThanOne = contactMeans.isMain && contact.isContactMeansGreaterThanOne;
+    if (isContactMeansMainAndGreaterThanOne) throw new ContactMeansMainRemovedException();
     if (contact.isSingleContactMeans) throw new ContactMeansSingleRemovedException();
     await this.means.delete(contactMeans);
     return '';
