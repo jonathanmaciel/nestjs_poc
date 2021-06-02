@@ -15,4 +15,26 @@ export class Contact {
 
   @OneToMany(() => ContactMeans, means => means.contact, {cascade: ['insert', 'update', 'remove']})
   means: ContactMeans[];
+
+  get isContactMeansGreaterThanOne(): Boolean {
+    return this.means.length > 1;
+  }  
+
+  get isSingleContactMeans(): Boolean {
+    return this.means.length == 1;
+  }
+
+  get hasContactMeans(): Boolean {
+    return this.means?.length > 1;
+  }
+
+  disableAllContactMeansMain(): void {
+    if (this.hasContactMeans) for (const item of this.means) {
+      item.isMain = false;
+    }
+  }
+
+  get firstContactMeans(): ContactMeans {
+    return this.means[0];
+  }
 }

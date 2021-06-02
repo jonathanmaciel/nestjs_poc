@@ -19,3 +19,7 @@ CREATE TABLE TB_SETTINGS(
   settings_id integer PRIMARY KEY AUTOINCREMENT,
   settings_value VARCHAR(100)
 );
+
+INSERT INTO tb_settings (settings_value) VALUES (1);
+
+INSERT INTO tb_settings (settings_value) VALUES (2);

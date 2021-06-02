@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put } from '@nestjs/common';
 import { ContactBookService } from './contact.book.service';
-import { ContactDTO } from './contact.dto';
+import { ContactDTO, ContactPostDTO, ContactReferenceDTO } from './contact.dto';
+import { ContactMeansDTO, ContactMeansPostDTO, ContactMeansReferenceDTO } from './contact.means.dto';
 import { SettingsDTO } from './settings.dto';
 
 @Controller("contacts/book")
@@ -13,15 +14,10 @@ export class ContactBookController {
     return this.contactBookService.list();
   }
 
-  @Get(':id')
-  listId (@Param('id') id: number): Promise<string> {
-    return this.contactBookService.listId(id);
-  }
-
   @Post()
   @HttpCode(201)
-  add (@Body() contactDTO: ContactDTO): Promise<string> {
-    return this.contactBookService.add(contactDTO);
+  add (@Body() contactPostDTO: ContactPostDTO): Promise<string> {
+    return this.contactBookService.add(contactPostDTO);
   }
 
   @Put()
@@ -32,31 +28,31 @@ export class ContactBookController {
 
   @Delete()
   @HttpCode(200)
-  delete (@Body() contactDTO: ContactDTO): Promise<string> {
-    return this.contactBookService.delete(contactDTO);
+  delete (@Body() contactReferenceDTO: ContactReferenceDTO): Promise<string> {
+    return this.contactBookService.delete(contactReferenceDTO);
   }
 
-  @Get('/mean/:id')
+  @Get('/means/:id')
   listContactMeans (@Param('id') id: number): Promise<string> {
     return this.contactBookService.listContactMeans(id);
   }
 
-  @Post('/mean')
+  @Post('/means')
   @HttpCode(201)
-  addContactMeans (@Body() mean): Promise<string> {
-    return this.contactBookService.addContactMeans(mean);
+  addContactMeans (@Body() contactMeansPostDTO: ContactMeansPostDTO): Promise<string> {
+    return this.contactBookService.addContactMeans(contactMeansPostDTO);
   }
 
-  @Put('/mean')
+  @Put('/means')
   @HttpCode(200)
-  updateMean (@Body() contactMeansDTO): Promise<string> {
+  updateMean (@Body() contactMeansDTO: ContactMeansDTO): Promise<string> {
     return this.contactBookService.putContactMeans(contactMeansDTO);
   }
 
-  @Delete('/mean')
+  @Delete('/means')
   @HttpCode(200)
-  deleteContactMeans (@Body() contactMeansDTO): Promise<string> {
-    return this.contactBookService.deleteContactMeans(contactMeansDTO);
+  deleteContactMeans (@Body() contactMeansReferenceDTO: ContactMeansReferenceDTO): Promise<string> {
+    return this.contactBookService.deleteContactMeans(contactMeansReferenceDTO);
   }
 
   @Get('/settings/:id')
