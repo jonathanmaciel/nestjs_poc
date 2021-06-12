@@ -14,6 +14,11 @@ export class ContactBookController {
     return this.contactBookService.list();
   }
 
+  @Get('/:id')
+  listItem (@Param('id') id: number): Promise<string> {
+    return this.contactBookService.listItem(id);
+  }
+
   @Post()
   @HttpCode(201)
   add (@Body() contactPostDTO: ContactPostDTO): Promise<string> {

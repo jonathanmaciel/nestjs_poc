@@ -32,6 +32,11 @@ export class ContactBookService {
     return JSON.stringify(contactsListed);
   }
 
+  listItem = async(id: number): Promise<string> => {
+    const contact: Contact = await this._listContact(id);
+    return JSON.stringify(contact);
+  }
+
   listContactMeans = async(id: number): Promise<string> => {
     const contact: Contact = await this._listContact(id);
     return JSON.stringify(contact.means);
@@ -59,7 +64,7 @@ export class ContactBookService {
     const contactsWithSameNamesFound: Contact[] = await this.contacts.find({name: Equal(contact.name)});
     const contactItemListed = contactsWithSameNamesFound.find((item) => item.id != contact.id)
     if (contactItemListed) throw new ContactNameEqualException();
-    await this.contacts.save(contact);
+    await this.contacts.update(contact.id, {name: contact.name, description: contact.description});
     return JSON.stringify(contactDTO);
   }
 

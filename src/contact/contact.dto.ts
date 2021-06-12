@@ -18,9 +18,7 @@ export class ContactDTO {
   description: string;
 
   asContact(): Contact {
-    const contact: Contact = plainToClass(Contact, this);
-    contact.means = null;
-    return contact;
+    return plainToClass(Contact, this);
   }
 }
 
